@@ -3412,20 +3412,22 @@ inline void gcode_G28() {
     }
   #endif
 
+  //active_extruder = 0;
+
   // Wait for planner moves to finish!
   stepper.synchronize();
 
-  // For auto bed leveling, clear the level matrix
-  #if HAS_ABL
-    reset_bed_level();
+  // Disable the leveling matrix before homing
+  #if PLANNER_LEVELING
+    set_bed_leveling_enabled(false);
   #endif
-
+/*
   // Always home with tool 0 active
   #if HOTENDS > 1
     uint8_t old_tool_index = active_extruder;
     tool_change(0, 0, true);
   #endif
-
+*/
   #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
     extruder_duplication_enabled = false;
   #endif
@@ -3489,12 +3491,16 @@ inline void gcode_G28() {
         destination[Z_AXIS] = LOGICAL_Z_POSITION(Z_HOMING_HEIGHT);
         if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
+          if(destination[Z_AXIS] - current_position[Z_AXIS] > 15){
+            destination[Z_AXIS] = current_position[Z_AXIS]+15;
+          }          
+
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING))
               SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
           #endif
 
-          //do_blocking_move_to_z(destination[Z_AXIS]);
+          do_blocking_move_to_z(destination[Z_AXIS]);
         }
       }
 
@@ -3563,9 +3569,10 @@ inline void gcode_G28() {
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
       if (home_all_axis || homeZ) {
+      	tool_change(2, 0, true);
         #if ENABLED(Z_SAFE_HOMING)
           home_z_safely();
-        #else
+        #else          
           HOMEAXIS(Z);
         #endif
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3634,12 +3641,14 @@ inline void gcode_G28() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif
-
+/*
   // Restore the active tool after homing
   #if HOTENDS > 1
     tool_change(old_tool_index, 0, true);
   #endif
-
+*/
+  //tool_change(3, 0, true);
+  endstops.enable(true);
   report_current_position();
 }
 
