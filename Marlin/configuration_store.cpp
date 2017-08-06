@@ -866,9 +866,9 @@ void Config_ResetDefault() {
         SERIAL_ECHOPAIR("  M218 T", (int)e);
         SERIAL_ECHOPAIR(" X", hotend_offset[X_AXIS][e]);
         SERIAL_ECHOPAIR(" Y", hotend_offset[Y_AXIS][e]);
-        #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
+        //#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
           SERIAL_ECHOPAIR(" Z", hotend_offset[Z_AXIS][e]);
-        #endif
+        //#endif
         SERIAL_EOL;
       }
     #endif
