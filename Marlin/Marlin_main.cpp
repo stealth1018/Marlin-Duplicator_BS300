@@ -3911,6 +3911,7 @@ inline void gcode_G28() {
       if (query) return;
     #endif
 
+    gcode_G28();
     // Don't allow auto-leveling without homing first
     if (axis_unhomed_error(true, true, true)) return;
 
@@ -4408,6 +4409,9 @@ inline void gcode_G28() {
 
     if (planner.abl_enabled)
       SYNC_PLAN_POSITION_KINEMATIC();
+    
+    tool_change(3, 0, true);
+    endstops.enable(true);
   }
 
 #endif // HAS_ABL
