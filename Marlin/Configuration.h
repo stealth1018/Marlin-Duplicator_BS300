@@ -597,7 +597,7 @@
 #define Z_PROBE_OFFSET_FROM_EXTRUDER -13   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 9000 // 150 mm/s
+#define XY_PROBE_SPEED HOMING_FEEDRATE_XY // 150 mm/s
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 // Speed for the "accurate" probe of each point
@@ -901,8 +901,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (4*60)
+#define HOMING_FEEDRATE_XY (3000)
+#define HOMING_FEEDRATE_Z  (500)
 
 //=============================================================================
 //============================= Additional Features ===========================
