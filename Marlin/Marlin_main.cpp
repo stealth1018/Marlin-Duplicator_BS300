@@ -91,6 +91,7 @@
  *        Use P to run other files as sub-programs: "M32 P !filename#"
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
+ * M40  - BED CHANGE
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
  * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -4825,6 +4826,77 @@ inline void gcode_M31() {
 
 #endif // SDSUPPORT
 
+//BED CHANGE
+inline void gcode_M40() {
+//endstops.enable(true);
+  stepper.synchronize();  
+
+  float travel=323;
+  float spu=400;
+  float step=8000;
+
+  pinMode(ABC_ENABLE_PIN,OUTPUT);
+  pinMode(ABC_STEP_PIN,OUTPUT);
+  pinMode(ABC_DIR_PIN,OUTPUT);
+
+  WRITE(ABC_ENABLE_PIN,LOW);       
+
+    WRITE(Z_ENABLE_PIN,LOW);
+    WRITE(Z_DIR_PIN,LOW);
+    while(READ(Z_MAX_PIN)==HIGH)
+    {
+    WRITE(Z_STEP_PIN, HIGH);   
+      delayMicroseconds(100);               
+      WRITE(Z_STEP_PIN, LOW);  
+      delayMicroseconds(100);         
+    }
+    //WRITE(Z_ENABLE_PIN,HIGH);
+    //do_blocking_move_to_z(350);
+
+  WRITE(ABC_DIR_PIN,LOW);
+  while(READ(ABC_ENDSTOP)==HIGH)
+  {
+    WRITE(ABC_STEP_PIN, HIGH);   
+    delayMicroseconds(50);               
+    WRITE(ABC_STEP_PIN, LOW);  
+    delayMicroseconds(50);            
+  }
+
+  WRITE(ABC_DIR_PIN,HIGH);
+  for (float i = 0; i < travel*spu ; ++i)
+  {
+    WRITE(ABC_STEP_PIN, HIGH);   
+    delayMicroseconds(50);               
+    WRITE(ABC_STEP_PIN, LOW);  
+    delayMicroseconds(50);    
+  }
+
+  WRITE(ABC_DIR_PIN,LOW);
+  while(READ(ABC_ENDSTOP)==HIGH)
+  {
+    WRITE(ABC_STEP_PIN, HIGH);   
+    delayMicroseconds(50);               
+    WRITE(ABC_STEP_PIN, LOW);  
+    delayMicroseconds(50);            
+  }
+
+  WRITE(ABC_ENABLE_PIN,HIGH);
+
+  
+  WRITE(Z_DIR_PIN,HIGH);
+  for (float i = 0; i < 2000 ; ++i)
+  {
+    WRITE(Z_STEP_PIN, HIGH);   
+    delayMicroseconds(50);               
+    WRITE(Z_STEP_PIN, LOW);  
+    delayMicroseconds(50);    
+  }
+  WRITE(Z_ENABLE_PIN,HIGH);
+
+  //do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-5, HOMING_FEEDRATE_Z);
+  //endstops.enable(false);
+}
+
 /**
  * Sensitive pin test for M42, M226
  */
@@ -8288,6 +8360,9 @@ void process_next_command() {
 
       case 31: // M31: Report time since the start of SD print or last M109
         gcode_M31(); break;
+        
+      case 40: // M40: bed change
+        gcode_M40(); break;
 
       case 42: // M42: Change pin state
         gcode_M42(); break;
