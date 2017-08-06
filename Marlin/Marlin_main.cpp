@@ -7622,6 +7622,7 @@ inline void invalid_extruder_error(const uint8_t &e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+//______________________________________________
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
@@ -7632,25 +7633,53 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
 
   #else //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
-
+//______________________________________________
     #if HOTENDS > 1
-
+/*
       if (tmp_extruder >= EXTRUDERS)
         return invalid_extruder_error(tmp_extruder);
-
+*/
       float old_feedrate_mm_s = feedrate_mm_s;
 
       feedrate_mm_s = fr_mm_s > 0.0 ? (old_feedrate_mm_s = fr_mm_s) : XY_PROBE_FEEDRATE_MM_S;
-
+//______________________________________________
+      if(!READ(HEAD_DET_T0)){
+        active_extruder = 0;
+        SERIAL_ECHOLNPGM("t0 on head");
+      }
+      else if(!READ(HEAD_DET_T1)){
+        active_extruder = 1;
+        SERIAL_ECHOLNPGM("t1 on head");
+      }
+      else if(!READ(HEAD_DET_PROBE)){
+        active_extruder = 2;
+        SERIAL_ECHOLNPGM("probe on head");
+      }   
+      else {
+        active_extruder = 3;
+        SERIAL_ECHOLNPGM("no tool on head");
+      }
+//______________________________________________
       if (tmp_extruder != active_extruder) {
+        /*
         if (!no_move && axis_unhomed_error(true, true, true)) {
           SERIAL_ECHOLNPGM("No move on toolchange");
           no_move = true;
         }
+        */
+        if (axis_homed[X_AXIS] == false || axis_homed[Y_AXIS] == false || axis_known_position[X_AXIS] == false || axis_known_position[Y_AXIS] == false){
+        SERIAL_ECHOLNPGM("homing before tool change");
+        //gcode_G28();
+        //enqueue_and_echo_commands_P(PSTR("G28 XY"));
+        setup_for_endstop_or_probe_move();
+        do_blocking_move_to_z(current_position[Z_AXIS]+15);
+    HOMEAXIS(Y);
+    HOMEAXIS(X);
+        }
 
         // Save current position to destination, for use later
         set_destination_to_current();
-
+//______________________________________________
         #if ENABLED(DUAL_X_CARRIAGE)
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -7750,6 +7779,62 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
           // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
         #else // !DUAL_X_CARRIAGE
+//______________________________________________      
+
+  if(active_extruder == 0){
+    SERIAL_ECHOLNPGM("parking t0");
+    do_blocking_move_to_xy(current_position[X_AXIS],300);
+    do_blocking_move_to_xy(90,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(53,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],300); 
+  }
+  if(active_extruder == 1){
+    SERIAL_ECHOLNPGM("parking t1");
+    do_blocking_move_to_xy(current_position[X_AXIS],300);
+    do_blocking_move_to_xy(290,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(253,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],300); 
+  }
+  if(active_extruder == 2){
+    SERIAL_ECHOLNPGM("parking probe");
+    do_blocking_move_to_xy(current_position[X_AXIS],300);
+    do_blocking_move_to_xy(190,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(153,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],300); 
+  } 
+
+  if(tmp_extruder == 0){
+    SERIAL_ECHOLNPGM("take t0");
+    do_blocking_move_to_xy(current_position[X_AXIS],300);
+    do_blocking_move_to_xy(55,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(90,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],300); 
+  }
+  if(tmp_extruder == 1){
+    SERIAL_ECHOLNPGM("take t1");
+    do_blocking_move_to_xy(current_position[X_AXIS],300);
+    do_blocking_move_to_xy(255,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(290,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],300); 
+  }
+  if(tmp_extruder == 2){
+    SERIAL_ECHOLNPGM("take probe");
+    do_blocking_move_to_xy(current_position[X_AXIS],300);
+    do_blocking_move_to_xy(155,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(190,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],300); 
+  }
+  if(tmp_extruder == 3){
+    SERIAL_ECHOLNPGM("parking all head");
+  }
+//______________________________________________
+
 
           #if ENABLED(SWITCHING_EXTRUDER)
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
@@ -7860,9 +7945,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             }
           #endif
 
+          SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
+          SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
+          SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
+          SERIAL_ECHOLNPGM(" }");
           // The newly-selected extruder XY is actually at...
-          current_position[X_AXIS] += xydiff[X_AXIS];
-          current_position[Y_AXIS] += xydiff[Y_AXIS];
+          current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
+          current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
+          current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
           for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
             position_shift[i] += xydiff[i];
             update_software_endstops((AxisEnum)i);
@@ -7880,6 +7970,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // Tell the planner the new "current position"
         SYNC_PLAN_POSITION_KINEMATIC();
 
+        /*
         // Move to the "old position" (move the extruder into place)
         if (!no_move && IsRunning()) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -7887,8 +7978,19 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           prepare_move_to_destination();
         }
+        */
 
       } // (tmp_extruder != active_extruder)
+
+      SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
+      SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
+      SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
+      SERIAL_ECHOLNPGM(" }");
+      // The newly-selected extruder XY is actually at...
+      current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
+      current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
+      current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
+          
 
       stepper.synchronize();
 
