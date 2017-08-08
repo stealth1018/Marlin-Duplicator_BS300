@@ -8360,7 +8360,10 @@ void process_next_command() {
 
       case 31: // M31: Report time since the start of SD print or last M109
         gcode_M31(); break;
-        
+      case 35: // M35
+        lcd_init(); break;
+      case 36: // M36
+        lcd_lib_init(); break; 
       case 40: // M40: bed change
         gcode_M40(); break;
 

@@ -232,6 +232,138 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     #define TALL_FONT_CORRECTION 0
   #endif
 
+/**
+ * Implementation of the LCD display routines for a SSD1309 OLED graphical display connected with i2c.
+ **/
+#define LCD_RESET_PIN 11
+#define I2C_SDA_PIN   20
+#define I2C_SCL_PIN   21
+
+#define I2C_FREQ 400000
+
+//The TWI interrupt routine conflicts with an interrupt already defined by Arduino, if you are using the Arduino IDE.
+// Not running the screen update from interrupts causes a 25ms delay each screen refresh. Which will cause issues during printing.
+// I recommend against using the Arduino IDE and setup a proper development environment.
+#define USE_TWI_INTERRUPT 1
+
+#define I2C_WRITE   0x00
+#define I2C_READ    0x01
+
+#define I2C_LED_ADDRESS 0b1100000
+
+#define I2C_LCD_ADDRESS 0b0111100
+#define I2C_LCD_SEND_COMMAND 0x00
+#define I2C_LCD_SEND_DATA    0x40
+
+#define LCD_COMMAND_CONTRAST                0x81
+#define LCD_COMMAND_FULL_DISPLAY_ON_DISABLE 0xA4
+#define LCD_COMMAND_FULL_DISPLAY_ON_ENABLE  0xA5
+#define LCD_COMMAND_INVERT_DISABLE          0xA6
+#define LCD_COMMAND_INVERT_ENABLE           0xA7
+#define LCD_COMMAND_DISPLAY_OFF             0xAE
+#define LCD_COMMAND_DISPLAY_ON              0xAF
+#define LCD_COMMAND_NOP                     0xE3
+#define LCD_COMMAND_LOCK_COMMANDS           0xFD
+
+#define LCD_COMMAND_SET_ADDRESSING_MODE     0x20
+
+unsigned long last_user_interaction=0;
+
+/**
+ * i2c communication low level functions.
+ */
+static inline void i2c_start()
+{
+    TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
+}
+
+static inline void i2c_restart()
+{
+    while (!(TWCR & (1<<TWINT))) {}
+    i2c_start();
+}
+
+static inline void i2c_send_raw(uint8_t data)
+{
+    while (!(TWCR & (1<<TWINT))) {}
+    TWDR = data;
+    TWCR = (1<<TWINT) | (1<<TWEN);
+}
+
+static inline void i2c_end()
+{
+    while (!(TWCR & (1<<TWINT))) {}
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
+}
+
+// set LCD contrast
+void lcd_lib_contrast(uint8_t data)
+{
+    i2c_start();
+    i2c_send_raw(I2C_LCD_ADDRESS << 1 | I2C_WRITE);
+    i2c_send_raw(I2C_LCD_SEND_COMMAND);
+    i2c_send_raw(LCD_COMMAND_CONTRAST);
+    i2c_send_raw(data);
+    i2c_end();
+}
+
+void lcd_lib_init()
+{
+    WRITE(LCD_RESET_PIN, 0);
+    _delay_ms(1);
+    WRITE(LCD_RESET_PIN, 1);
+    _delay_ms(1);
+
+    //ClockFreq = (F_CPU) / (16 + 2*TWBR * 4^TWPS)
+    //TWBR = ((F_CPU / ClockFreq) - 16)/2*4^TWPS
+    TWBR = ((F_CPU / I2C_FREQ) - 16)/2*1;
+    TWSR = 0x00;
+
+    i2c_start();
+    i2c_send_raw(I2C_LCD_ADDRESS << 1 | I2C_WRITE);
+    i2c_send_raw(I2C_LCD_SEND_COMMAND);
+
+    i2c_send_raw(LCD_COMMAND_LOCK_COMMANDS);
+    i2c_send_raw(0x12);
+
+    i2c_send_raw(LCD_COMMAND_DISPLAY_OFF);
+
+    i2c_send_raw(0xD5);//Display clock divider/freq
+    i2c_send_raw(0xA0);
+
+    i2c_send_raw(0xA8);//Multiplex ratio
+    i2c_send_raw(0x3F);
+
+    i2c_send_raw(0xD3);//Display offset
+    i2c_send_raw(0x00);
+
+    i2c_send_raw(0x40);//Set start line
+
+    i2c_send_raw(0xA1);//Segment remap
+
+    i2c_send_raw(0xC8);//COM scan output direction
+    i2c_send_raw(0xDA);//COM pins hardware configuration
+    i2c_send_raw(0x12);
+
+    i2c_send_raw(LCD_COMMAND_CONTRAST);
+    i2c_send_raw(lcd_contrast);
+
+    i2c_send_raw(0xD9);//Pre charge period
+    i2c_send_raw(0x82);
+
+    i2c_send_raw(0xDB);//VCOMH Deslect level
+    i2c_send_raw(0x34);
+
+    i2c_send_raw(LCD_COMMAND_SET_ADDRESSING_MODE);
+
+    i2c_send_raw(LCD_COMMAND_FULL_DISPLAY_ON_DISABLE);
+
+    i2c_send_raw(LCD_COMMAND_DISPLAY_ON);
+    i2c_end();
+
+}
+
+
   /**
    * START_SCREEN_OR_MENU generates init code for a screen or menu
    *
