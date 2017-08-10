@@ -6532,24 +6532,18 @@ inline void gcode_M211() {
    *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_EXTRUDER
    */
   inline void gcode_M218() {
-    if (get_target_extruder_from_command(218) || target_extruder == 0) return;
-
-    if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_axis_units(X_AXIS);
-    if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_axis_units(Y_AXIS);
-    if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_axis_units(Z_AXIS);
+    if (code_seen('X')) hotend_offset[X_AXIS][1] = code_value_axis_units(X_AXIS);
+    if (code_seen('Y')) hotend_offset[Y_AXIS][1] = code_value_axis_units(Y_AXIS);
+    if (code_seen('Z')) hotend_offset[Z_AXIS][1] = code_value_axis_units(Z_AXIS);
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-    HOTEND_LOOP() {
       SERIAL_CHAR(' ');
-      SERIAL_ECHO(hotend_offset[X_AXIS][e]);
+      SERIAL_ECHO(hotend_offset[X_AXIS][1]);
       SERIAL_CHAR(',');
-      SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      //#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
-        SERIAL_CHAR(',');
-        SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
-      //#endif
-    }
+      SERIAL_ECHO(hotend_offset[Y_AXIS][1]);
+      SERIAL_CHAR(',');
+      SERIAL_ECHO(hotend_offset[Z_AXIS][1]);
     SERIAL_EOL;
   }
 
