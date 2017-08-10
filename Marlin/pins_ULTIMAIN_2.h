@@ -116,7 +116,10 @@
 //
 // LCD / Controller
 //
-#define LCD_RESET_PIN 		11
+//#define LCD_RESET_PIN 		11
+#define DOGLCD_CS     	   11
+#define DOGLCD_A0     	   41
+
 
 // Buttons are directly attached
 #define BTN_EN1            38
@@ -131,7 +134,7 @@
 
 #define LCD_PINS_RS        39//20
 #define LCD_PINS_ENABLE    40//15
-#define LCD_PINS_D4        41//14
+#define LCD_PINS_D4        49//14
 #define LCD_PINS_D5        49//21
 #define LCD_PINS_D6        58// 5
 #define LCD_PINS_D7        59// 6

@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010100
+#define CONFIGURATION_H_VERSION 010101
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -316,10 +316,10 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  // Ultimaker
-  #define  DEFAULT_Kp 22.2
-  #define  DEFAULT_Ki 1.08
-  #define  DEFAULT_Kd 114
+  // BS300
+  #define  DEFAULT_Kp 24.83
+  #define  DEFAULT_Ki 2.09
+  #define  DEFAULT_Kd 73.75
 
 		// Ultimaker2
     //#define  DEFAULT_Kp 9.12
@@ -363,12 +363,10 @@
 #if ENABLED(PIDTEMPBED)
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
-
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define  DEFAULT_bedKp 10.00
-  #define  DEFAULT_bedKi .023
-  #define  DEFAULT_bedKd 305.4
+  // BS300
+  #define  DEFAULT_bedKp 45.54
+  #define  DEFAULT_bedKi 1.22
+  #define  DEFAULT_bedKd 424.38
 
   //Ultimaker2
 //  #define  DEFAULT_bedKp 124.55
@@ -1220,7 +1218,7 @@
 //
 // ULTIPANEL as seen on Thingiverse.
 //
-#define ULTIPANEL
+//#define ULTIPANEL
 
 //
 // Cartesio UI
@@ -1286,7 +1284,7 @@
 // MakerLab Mini Panel with graphic
 // controller and SD support - http://reprap.org/wiki/Mini_panel
 //
-//#define MINIPANEL
+#define MINIPANEL
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
@@ -1354,9 +1352,9 @@
 //
 // SSD1306 OLED full graphics generic display
 //
-#define U8GLIB_SSD1306
-#define LCD_WIDTH 22
-#define LCD_HEIGHT 5
+//#define U8GLIB_SSD1306
+//#define LCD_WIDTH 22
+//#define LCD_HEIGHT 5
 
 //
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules

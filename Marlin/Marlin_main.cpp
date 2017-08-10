@@ -1306,6 +1306,9 @@ bool get_target_extruder_from_command(int code) {
     target_extruder = code_value_byte();
   }
   else
+    if (active_extruder >= EXTRUDERS) {
+      active_extruder = 0;
+    }
     target_extruder = active_extruder;
 
   return false;
@@ -6533,10 +6536,7 @@ inline void gcode_M211() {
 
     if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_axis_units(X_AXIS);
     if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_axis_units(Y_AXIS);
-
-    //#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
-      if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_axis_units(Z_AXIS);
-    //#endif
+    if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_axis_units(Z_AXIS);
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
@@ -7856,6 +7856,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
         #else // !DUAL_X_CARRIAGE
 //______________________________________________      
+  do_blocking_move_to_z(current_position[Z_AXIS]+2);
 
   if(active_extruder == 0){
     SERIAL_ECHOLNPGM("parking t0");
@@ -8021,6 +8022,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             }
           #endif
 
+        if(tmp_extruder < EXTRUDERS && active_extruder < EXTRUDERS){
           SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
           SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
           SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
@@ -8029,9 +8031,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
           current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
           current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
-          for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-            position_shift[i] += xydiff[i];
-            update_software_endstops((AxisEnum)i);
           }
 
           // Set the new active extruder
@@ -8058,15 +8057,17 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       } // (tmp_extruder != active_extruder)
 
-      SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
-      SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
-      SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
-      SERIAL_ECHOLNPGM(" }");
-      // The newly-selected extruder XY is actually at...
-      current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
-      current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
-      current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
-          
+        if(tmp_extruder < EXTRUDERS && active_extruder < EXTRUDERS){
+          SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
+          SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
+          SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
+          SERIAL_ECHOLNPGM(" }");
+          // The newly-selected extruder XY is actually at...
+          current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
+          current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
+          current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
+          }
+
 
       stepper.synchronize();
 
