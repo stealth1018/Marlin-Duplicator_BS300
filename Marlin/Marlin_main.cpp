@@ -1306,10 +1306,11 @@ bool get_target_extruder_from_command(int code) {
     target_extruder = code_value_byte();
   }
   else
-    if (active_extruder >= EXTRUDERS) {
-      active_extruder = 0;
+    if (active_extruder == 2 || active_extruder == 3) {
+      target_extruder = 0;
     }
-    target_extruder = active_extruder;
+    else
+      target_extruder = active_extruder;
 
   return false;
 }
