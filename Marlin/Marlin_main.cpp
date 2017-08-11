@@ -4606,7 +4606,7 @@ inline void gcode_G92() {
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
    * M1: Conditional stop   - Wait for user button press on LCD
-   */
+   *//*
   inline void gcode_M0_M1() {
     char* args = current_command_args;
 
@@ -4665,7 +4665,7 @@ inline void gcode_G92() {
     wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
   }
-
+*/
 #endif // EMERGENCY_PARSER || ULTIPANEL
 
 /**
@@ -8308,12 +8308,12 @@ void process_next_command() {
     break;
 
     case 'M': switch (codenum) {
-      #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
+     /* #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
         case 0: // M0: Unconditional stop - Wait for user button press on LCD
         case 1: // M1: Conditional stop - Wait for user button press on LCD
           gcode_M0_M1();
           break;
-      #endif // ULTIPANEL
+      #endif // ULTIPANEL*/
 
       case 17: // M17: Enable all stepper motors
         gcode_M17();
