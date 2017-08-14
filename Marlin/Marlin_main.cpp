@@ -4832,10 +4832,12 @@ inline void gcode_M31() {
 
 //BED CHANGE
 inline void gcode_M40() {
-//endstops.enable(true);
-  stepper.synchronize();  
 
-  float travel=323;
+	
+  stepper.synchronize();
+
+  int tr=0;
+  float travel=324;
   float spu=400;
   float step=8000;
 
@@ -4845,17 +4847,17 @@ inline void gcode_M40() {
 
   WRITE(ABC_ENABLE_PIN,LOW);       
 
-    WRITE(Z_ENABLE_PIN,LOW);
-    WRITE(Z_DIR_PIN,LOW);
-    while(READ(Z_MAX_PIN)==HIGH)
-    {
-    WRITE(Z_STEP_PIN, HIGH);   
-      delayMicroseconds(100);               
-      WRITE(Z_STEP_PIN, LOW);  
-      delayMicroseconds(100);         
-    }
-    //WRITE(Z_ENABLE_PIN,HIGH);
-    //do_blocking_move_to_z(350);
+	WRITE(Z_ENABLE_PIN,LOW);
+	WRITE(Z_DIR_PIN,LOW);
+	while(READ(Z_MAX_PIN)==HIGH)
+	{
+	WRITE(Z_STEP_PIN, HIGH);   
+	  delayMicroseconds(100);               
+	  WRITE(Z_STEP_PIN, LOW);  
+	  delayMicroseconds(100);         
+	}
+	//WRITE(Z_ENABLE_PIN,HIGH);
+	//do_blocking_move_to_z(350);
 
   WRITE(ABC_DIR_PIN,LOW);
   while(READ(ABC_ENDSTOP)==HIGH)
@@ -4872,8 +4874,9 @@ inline void gcode_M40() {
     WRITE(ABC_STEP_PIN, HIGH);   
     delayMicroseconds(50);               
     WRITE(ABC_STEP_PIN, LOW);  
-    delayMicroseconds(50);    
+    delayMicroseconds(50);
   }
+
 
   WRITE(ABC_DIR_PIN,LOW);
   while(READ(ABC_ENDSTOP)==HIGH)
@@ -7905,6 +7908,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   if(tmp_extruder == 3){
     SERIAL_ECHOLNPGM("parking all head");
   }
+
+  if(tmp_extruder == 0)
+	if(READ(HEAD_DET_T0))
+
+  if(tmp_extruder == 1)
+	if(READ(HEAD_DET_T1))
+
+  if(tmp_extruder == 2)
+	if(READ(HEAD_DET_PROBE))
+
 //______________________________________________
 
 
