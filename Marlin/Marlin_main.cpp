@@ -4833,6 +4833,7 @@ inline void gcode_M31() {
 //BED CHANGE
 inline void gcode_M40() {
 
+  if(READ(ABC_FRONT)) kill(PSTR("NO BED ERROR"));
 	
   stepper.synchronize();
 
@@ -4875,8 +4876,10 @@ inline void gcode_M40() {
     delayMicroseconds(50);               
     WRITE(ABC_STEP_PIN, LOW);  
     delayMicroseconds(50);
+    if(READ(ABC_FRONT)) tr=1;    
   }
 
+  if(tr==0) kill(PSTR("ABC JAM ERROR"));
 
   WRITE(ABC_DIR_PIN,LOW);
   while(READ(ABC_ENDSTOP)==HIGH)
@@ -7859,50 +7862,62 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   if(active_extruder == 0){
     SERIAL_ECHOLNPGM("parking t0");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
-    do_blocking_move_to_xy(90,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(89,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],336);
     do_blocking_move_to_xy(53,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(active_extruder == 1){
     SERIAL_ECHOLNPGM("parking t1");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
-    do_blocking_move_to_xy(290,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(289,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],336);
     do_blocking_move_to_xy(253,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(active_extruder == 2){
     SERIAL_ECHOLNPGM("parking probe");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
-    do_blocking_move_to_xy(190,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],338);
+    do_blocking_move_to_xy(189,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],336);
     do_blocking_move_to_xy(153,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   } 
+
+  if(active_extruder == 0)
+	if(READ(MOUNT_DET_T0))
+		kill(PSTR("TOOL CHANGE ERROR T0-M"));
+
+  if(active_extruder == 1)
+	if(READ(MOUNT_DET_T1))
+		kill(PSTR("TOOL CHANGE ERROR T1-M"));
+
+  if(active_extruder == 2)
+	if(READ(MOUNT_DET_PROBE))
+		kill(PSTR("TOOL CHANGE ERROR P-M"));
 
   if(tmp_extruder == 0){
     SERIAL_ECHOLNPGM("take t0");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(55,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],338);
-    do_blocking_move_to_xy(90,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],336);
+    do_blocking_move_to_xy(89,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(tmp_extruder == 1){
     SERIAL_ECHOLNPGM("take t1");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(255,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],338);
-    do_blocking_move_to_xy(290,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],336);
+    do_blocking_move_to_xy(289,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(tmp_extruder == 2){
     SERIAL_ECHOLNPGM("take probe");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(155,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],338);
-    do_blocking_move_to_xy(190,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],336);
+    do_blocking_move_to_xy(189,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(tmp_extruder == 3){
@@ -7911,12 +7926,15 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
   if(tmp_extruder == 0)
 	if(READ(HEAD_DET_T0))
+		kill(PSTR("TOOL CHANGE ERROR T0-H"));
 
   if(tmp_extruder == 1)
 	if(READ(HEAD_DET_T1))
+		kill(PSTR("TOOL CHANGE ERROR T1-H"));
 
   if(tmp_extruder == 2)
 	if(READ(HEAD_DET_PROBE))
+		kill(PSTR("TOOL CHANGE ERROR P-H"));
 
 //______________________________________________
 
