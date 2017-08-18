@@ -7863,24 +7863,24 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHOLNPGM("parking t0");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(89,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],336);
-    do_blocking_move_to_xy(53,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],337);
+    do_blocking_move_to_xy(54,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(active_extruder == 1){
     SERIAL_ECHOLNPGM("parking t1");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(289,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],336);
-    do_blocking_move_to_xy(253,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],337);
+    do_blocking_move_to_xy(254,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
   if(active_extruder == 2){
     SERIAL_ECHOLNPGM("parking probe");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(189,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],336);
-    do_blocking_move_to_xy(153,current_position[Y_AXIS]);
+    do_blocking_move_to_xy(current_position[X_AXIS],337);
+    do_blocking_move_to_xy(154,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   } 
 
@@ -7900,7 +7900,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHOLNPGM("take t0");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(55,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],336);
+    do_blocking_move_to_xy(current_position[X_AXIS],337);
     do_blocking_move_to_xy(89,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
@@ -7908,7 +7908,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHOLNPGM("take t1");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(255,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],336);
+    do_blocking_move_to_xy(current_position[X_AXIS],337);
     do_blocking_move_to_xy(289,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
@@ -7916,7 +7916,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHOLNPGM("take probe");
     do_blocking_move_to_xy(current_position[X_AXIS],300);
     do_blocking_move_to_xy(155,current_position[Y_AXIS]);
-    do_blocking_move_to_xy(current_position[X_AXIS],336);
+    do_blocking_move_to_xy(current_position[X_AXIS],337);
     do_blocking_move_to_xy(189,current_position[Y_AXIS]);
     do_blocking_move_to_xy(current_position[X_AXIS],300); 
   }
@@ -7935,6 +7935,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   if(tmp_extruder == 2)
 	if(READ(HEAD_DET_PROBE))
 		kill(PSTR("TOOL CHANGE ERROR P-H"));
+
+  do_blocking_move_to_z(current_position[Z_AXIS]-2);
 
 //______________________________________________
 
@@ -8048,7 +8050,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             }
           #endif
 
-        if(tmp_extruder < EXTRUDERS && active_extruder < EXTRUDERS){
           SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
           SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
           SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
@@ -8057,7 +8058,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
           current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
           current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
-          }
 
           // Set the new active extruder
           active_extruder = tmp_extruder;
@@ -8082,18 +8082,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         */
 
       } // (tmp_extruder != active_extruder)
-
-        if(tmp_extruder < EXTRUDERS && active_extruder < EXTRUDERS){
-          SERIAL_ECHOPAIR("Offset Tool XYZ by { ", hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder]);
-          SERIAL_ECHOPAIR(", ", hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]);
-          SERIAL_ECHOPAIR(", ", hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder]);
-          SERIAL_ECHOLNPGM(" }");
-          // The newly-selected extruder XY is actually at...
-          current_position[X_AXIS] += hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
-          current_position[Y_AXIS] += hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
-          current_position[Z_AXIS] += hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
-          }
-
 
       stepper.synchronize();
 
