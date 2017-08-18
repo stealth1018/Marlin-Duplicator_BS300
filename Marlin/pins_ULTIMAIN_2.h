@@ -116,7 +116,7 @@
 //
 // LCD / Controller
 //
-//#define LCD_RESET_PIN 		11
+#define LCD_RESET_PIN 	   37
 #define DOGLCD_CS     	   11
 #define DOGLCD_A0     	   41
 
@@ -129,7 +129,7 @@
 //_____________________________________________________
 #define SAFETY_TRIGGERED_PIN     4//28 // PIN to detect the safety circuit has triggered
 #define MAIN_VOLTAGE_MEASURE_PIN 22//14 // ANALOG PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
-#define FIL_RUNOUT_PIN    37//69        // Filament Runout sensor.  NC switch with internal pull up resistors.
+//#define FIL_RUNOUT_PIN    37//69        // Filament Runout sensor.  NC switch with internal pull up resistors.
 				    // This is the connector "Analog J9" on the Wanhao/Ultiboard_2 main board.
 
 #define LCD_PINS_RS        39//20
