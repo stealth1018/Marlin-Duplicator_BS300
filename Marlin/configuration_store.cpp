@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V28"
+#define EEPROM_VERSION "V29"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -772,9 +772,9 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
-    #if E_STEPPERS == 1
+    //#if E_STEPPERS == 1 
       SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
-    #endif
+    //#endif
     SERIAL_EOL;
     #if ENABLED(DISTINCT_E_FACTORS)
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
