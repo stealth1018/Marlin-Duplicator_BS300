@@ -4832,8 +4832,6 @@ inline void gcode_M31() {
 
 //BED CHANGE
 inline void gcode_M40() {
-
-  if(READ(ABC_FRONT)) kill(PSTR("NO BED ERROR"));
 	
   stepper.synchronize();
 
@@ -4861,13 +4859,15 @@ inline void gcode_M40() {
 	//do_blocking_move_to_z(350);
 
   WRITE(ABC_DIR_PIN,LOW);
-  while(READ(ABC_ENDSTOP)==HIGH)
+  while(READ(ABC_ENDSTOP)==LOW)
   {
     WRITE(ABC_STEP_PIN, HIGH);   
     delayMicroseconds(50);               
     WRITE(ABC_STEP_PIN, LOW);  
     delayMicroseconds(50);            
   }
+
+  if(READ(ABC_FRONT)) kill(PSTR("NO BED ERROR"));
 
   WRITE(ABC_DIR_PIN,HIGH);
   for (float i = 0; i < travel*spu ; ++i)
@@ -4882,7 +4882,7 @@ inline void gcode_M40() {
   if(tr==0) kill(PSTR("ABC JAM ERROR"));
 
   WRITE(ABC_DIR_PIN,LOW);
-  while(READ(ABC_ENDSTOP)==HIGH)
+  while(READ(ABC_ENDSTOP)==LOW)
   {
     WRITE(ABC_STEP_PIN, HIGH);   
     delayMicroseconds(50);               

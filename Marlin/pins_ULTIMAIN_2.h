@@ -120,6 +120,7 @@
 #define DOGLCD_CS     	   11
 #define DOGLCD_A0     	   41
 
+#define LCD_SCREEN_ROT_180
 
 // Buttons are directly attached
 #define BTN_EN1            38
